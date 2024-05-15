@@ -308,6 +308,8 @@ class RelayModernStore implements Store {
     sourceOperation?: OperationDescriptor,
     invalidateStore?: boolean,
   ): $ReadOnlyArray<RequestDescriptor> {
+    console.log('RelayModernStore -- Se notifica a los suscriptores');
+
     const log = this.__log;
     if (log != null) {
       log({
@@ -393,6 +395,8 @@ class RelayModernStore implements Store {
   }
 
   publish(source: RecordSource, idsMarkedForInvalidation?: DataIDSet): void {
+    console.log('RelayModernStore -- Se publica nueva data', source);
+
     const target = this._getMutableRecordSource();
     updateTargetFromSource(
       target,
@@ -421,6 +425,8 @@ class RelayModernStore implements Store {
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable {
+    console.log('RelayModernStore --- subscribe()');
+
     return this._storeSubscriptions.subscribe(snapshot, callback);
   }
 

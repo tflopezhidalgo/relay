@@ -225,17 +225,23 @@ class Executor<TMutation: MutationParameters> {
     this._completeFns = [];
 
     const id = this._nextSubscriptionId++;
+
+    // Esto funciona como subscriptor de la respuesta.
+    // Tomas -- Esto dispara la ejecucion de la query (fetchFn) -- Mentira.
     source.subscribe({
       complete: () => this._complete(id),
       error: error => this._error(error),
       next: response => {
+        console.log('OperationExecutor -- next()');
         try {
+          // Tomas -- aca pasa la magia del publish() y notify().
           this._next(id, response);
         } catch (error) {
           sink.error(error);
         }
       },
       start: subscription => {
+        console.log('OperationExecutor -- start()');
         this._start(id, subscription);
         this._log({
           name: 'execute.start',
@@ -579,6 +585,8 @@ class Executor<TMutation: MutationParameters> {
       }
     }
 
+    console.log('OperationExecutor -- Ejecutando la publish queue');
+
     // OK: run once after each new payload
     // If we have non-incremental responses, we passing `this._operation` to
     // the publish queue here, which will later be passed to the store (via
@@ -821,6 +829,12 @@ class Executor<TMutation: MutationParameters> {
           shouldProcessClientComponents: this._shouldProcessClientComponents,
         },
       );
+
+      console.log(
+        'OperationExecutor -- Commiteando respuesta a la store',
+        relayPayload,
+      );
+
       this._getPublishQueueAndSaveActor().commitPayload(
         this._operation,
         relayPayload,

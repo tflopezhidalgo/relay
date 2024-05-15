@@ -296,6 +296,11 @@ class FragmentResourceImpl {
           isPromiseCached: true,
           pendingOperations: cachedValue.pendingOperations,
         });
+
+        console.log(
+          'FragmentResource -- Suspendiendo porque hay una promise en el cache...',
+        );
+
         throw cachedValue.promise;
       }
 
@@ -334,6 +339,11 @@ class FragmentResourceImpl {
       componentDisplayName,
     );
 
+    console.log(
+      'FragmentResource -- Leyendo selector con environment.lookup().',
+      fragmentSelector,
+    );
+
     const snapshot =
       fragmentSelector.kind === 'PluralReaderSelector'
         ? fragmentSelector.selectors.map(s => environment.lookup(s))
@@ -344,6 +354,9 @@ class FragmentResourceImpl {
       snapshot,
       storeEpoch,
     );
+
+    console.log('FragmentResource -- Resultado: ', fragmentResult);
+
     if (!fragmentResult.isMissingData) {
       this._handlePotentialSnapshotErrorsInSnapshot(snapshot);
 
@@ -419,6 +432,7 @@ class FragmentResourceImpl {
         fragmentOwner,
         fragmentResult,
       );
+
     const parentQueryPromiseResultPromise = parentQueryPromiseResult?.promise; // for refinement
     const missingResolverFieldPromises =
       missingLiveResolverFields(snapshot)?.map(({liveStateID}) => {
@@ -458,6 +472,8 @@ class FragmentResourceImpl {
         if (parentQueryPromiseResultPromise) {
           promises.push(parentQueryPromiseResultPromise);
         }
+
+        console.log('FragmentResource -- Suspendiendo (varias promises)...');
         throw Promise.all(promises);
       }
 
@@ -465,6 +481,7 @@ class FragmentResourceImpl {
       // because some of our suspense-related code is relying on the instance equality
       // of thrown promises. See FragmentResource-test.js
       if (parentQueryPromiseResultPromise) {
+        console.log('FragmentResource -- Suspendiendo...');
         throw parentQueryPromiseResultPromise;
       }
     }

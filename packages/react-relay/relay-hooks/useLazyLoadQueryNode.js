@@ -52,6 +52,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
   const QueryResource = getQueryResourceForEnvironment(environment);
 
   const [forceUpdateKey, forceUpdate] = useState(0);
+
   const {startFetch, completeFetch} = useFetchTrackingRef();
   const cacheBreaker = `${forceUpdateKey}-${fetchKey ?? ''}`;
   const cacheIdentifier = getQueryCacheIdentifier(
@@ -73,6 +74,11 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
       profilerContext,
     );
   });
+
+  console.log(
+    'useLazyLoadQueryNode -- preparedQueryResult: ',
+    preparedQueryResult,
+  );
 
   const maybeHiddenOrFastRefresh = useRef(false);
   useEffect(() => {

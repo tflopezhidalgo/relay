@@ -271,6 +271,9 @@ class QueryResourceImpl {
     temporaryRetainDisposable = cacheEntry.temporaryRetain(environment);
 
     const cachedValue = cacheEntry.getValue();
+
+    console.log('QueryResource -- cachedValue:', cachedValue);
+
     if (isPromise(cachedValue)) {
       environment.__log({
         name: 'suspense.query',
@@ -378,11 +381,16 @@ class QueryResourceImpl {
   ): QueryResourceCacheEntry {
     const environment = this._environment;
 
+    // Tomas -- Importante!! Aca definimos si tenemmos que fetchearla o no.
+
     // NOTE: Running `check` will write missing data to the store using any
     // missing data handlers specified on the environment;
     // We run it here first to make the handlers get a chance to populate
     // missing data.
     const queryAvailability = environment.check(operation);
+
+    console.log('QueryResource -- queryAvailability: ', {queryAvailability});
+
     const queryStatus = queryAvailability.status;
     const hasFullQuery = queryStatus === 'available';
     const canPartialRender =
@@ -437,8 +445,13 @@ class QueryResourceImpl {
     if (shouldFetch) {
       const queryResult = getQueryResult(operation, cacheIdentifier);
       let networkSubscription: ?Subscription;
+
+      console.log('QueryResource -- Suscribiendonos al fetchObservable!.');
+
       fetchObservable.subscribe({
         start: subscription => {
+          console.log('QueryResource -- start()');
+
           networkSubscription = subscription;
           const cacheEntry = this._cache.get(cacheIdentifier);
           if (cacheEntry) {
@@ -459,6 +472,8 @@ class QueryResourceImpl {
           }
         },
         next: () => {
+          console.log('QueryResource -- next().');
+
           const cacheEntry = this._getOrCreateCacheEntry(
             cacheIdentifier,
             operation,
@@ -510,6 +525,8 @@ class QueryResourceImpl {
           observerError && observerError(error);
         },
         complete: () => {
+          console.log('QueryResource -- complete().');
+
           resolveNetworkPromise();
 
           networkSubscription = null;
@@ -517,6 +534,9 @@ class QueryResourceImpl {
           if (cacheEntry) {
             cacheEntry.setNetworkSubscription(null);
           }
+
+          // Como que en realidad esta forwardeando los eventos.
+
           const observerComplete = observer?.complete;
           observerComplete && observerComplete();
         },

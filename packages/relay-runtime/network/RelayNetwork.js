@@ -68,18 +68,25 @@ function create(
         !uploadables,
         'RelayNetwork: Cannot provide uploadables while polling.',
       );
+
       return observeFetch(request, operationVariables, {force: true}).poll(
         pollInterval,
       );
     }
 
-    return observeFetch(
+    console.log('RelayNetwork -- Iniciando fetchFn().');
+
+    const r = observeFetch(
       request,
       operationVariables,
       cacheConfig,
       uploadables,
       logRequestInfo,
     );
+
+    console.log('RelayNetwork -- Devolviendo observable de fetchFn().');
+
+    return r;
   }
 
   return {execute};

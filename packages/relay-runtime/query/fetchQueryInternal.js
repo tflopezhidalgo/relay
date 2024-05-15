@@ -128,10 +128,19 @@ function fetchQueryDeduped(
     let cachedRequest = requestCache.get(identifier);
 
     if (!cachedRequest) {
+      console.log('fetchQueryDeduped -- Suscribiendose a fetchFn().');
+
       fetchFn()
         .finally(() => requestCache.delete(identifier))
+
+        // Tomas -- esta suscripcion nos habilita a saber si la
+        // respuesta esta en progreso o no. Utilizado luego por `readWithIdentifier`
+        // para obtener la promise correspondiente.
+
         .subscribe({
           start: subscription => {
+            console.log('fetchQueryDeduped -- start()');
+
             cachedRequest = {
               identifier,
               subject: new RelayReplaySubject(),
@@ -142,6 +151,8 @@ function fetchQueryDeduped(
             requestCache.set(identifier, cachedRequest);
           },
           next: response => {
+            console.log('fetchQueryDeduped -- next()');
+
             const cachedReq = getCachedRequest(requestCache, identifier);
             cachedReq.subject.next(response);
             cachedReq.subjectForInFlightStatus.next(response);
@@ -152,6 +163,8 @@ function fetchQueryDeduped(
             cachedReq.subjectForInFlightStatus.error(error);
           },
           complete: () => {
+            console.log('fetchQueryDeduped -- complete()');
+
             const cachedReq = getCachedRequest(requestCache, identifier);
             cachedReq.subject.complete();
             cachedReq.subjectForInFlightStatus.complete();

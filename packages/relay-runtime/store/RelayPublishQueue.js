@@ -241,6 +241,8 @@ class RelayPublishQueue implements PublishQueue {
         this._hasStoreSnapshot = false;
       }
     }
+
+    // Tomas -- aca se publica la nueva data.
     const invalidatedStore = this._commitData();
     if (
       this._pendingOptimisticUpdates.size ||

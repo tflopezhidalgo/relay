@@ -37,6 +37,8 @@ function useFragmentNode<TFragmentData: mixed>(
   const [, forceUpdate] = useState(0);
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
+  console.log('useFragmentNode -- Leyendo...', fragmentIdentifier);
+
   // Read fragment data; this might suspend.
   const fragmentResult = FragmentResource.readWithIdentifier(
     fragmentNode,
@@ -45,7 +47,10 @@ function useFragmentNode<TFragmentData: mixed>(
     componentDisplayName,
   );
 
+  console.log('useFragmentNode -- Resultado: ', fragmentResult);
+
   const isListeningForUpdatesRef = useRef(true);
+
   function enableStoreUpdates() {
     isListeningForUpdatesRef.current = true;
     const didMissUpdates =
@@ -80,12 +85,17 @@ function useFragmentNode<TFragmentData: mixed>(
   // In this case, we need to resubscribe to the Relay store.
   useEffect(() => {
     isMountedRef.current = true;
+
+    console.log('useFragmentNode.useEffect mount()');
+
     const disposable = FragmentResource.subscribe(
       fragmentResult,
       handleDataUpdate,
     );
 
     return () => {
+      console.log('useFragmentNode.useEffect unmount()');
+
       // When unmounting or resubscribing to new data, clean up current
       // subscription. This will also make sure fragment data is no longer
       // cached so that next time it its read, it will be freshly read from

@@ -370,6 +370,7 @@ class RelayModernEnvironment implements IEnvironment {
   }): RelayObservable<GraphQLResponse> {
     return this._execute({
       createSource: () =>
+        // Esto es sincronico.
         this.getNetwork().execute(
           operation.request.node.params,
           operation.request.variables,
